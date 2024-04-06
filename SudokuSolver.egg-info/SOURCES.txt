@@ -1,0 +1,8 @@
+License.txt
+README.md
+setup.py
+SudokuSolver.egg-info/PKG-INFO
+SudokuSolver.egg-info/SOURCES.txt
+SudokuSolver.egg-info/dependency_links.txt
+SudokuSolver.egg-info/top_level.txt
+tests/test_sudoku_solver.py
