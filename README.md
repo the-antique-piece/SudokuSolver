@@ -40,4 +40,4 @@ Contributions are welcome! If you have any suggestions, bug reports, or feature 
 
 ## License
 
-This project is licensed under the [Apache License Version 2.0](link-to-license-file).
+This project is licensed under the [Apache License Version 2.0](https://github.com/Maneesh-Singh123/SudokuSolver/blob/28503bc171f88aeb7da5e1607f06a4725d93ddf2/License.txt).
