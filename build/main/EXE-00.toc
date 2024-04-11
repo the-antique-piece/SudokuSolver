@@ -64,8 +64,8 @@
  [],
  False,
  False,
- 1712371861,
+ 1712856268,
  [('run.exe',
    'c:\\Users\\Lenovo\\OutlookOneDrive\\OneDrive\\Desktop\\SudokuSolver\\.venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\run.exe',
    'EXECUTABLE')],
- 'C:\\Users\\Lenovo\\AppData\\Local\\Programs\\Python\\Python312\\python312.dll')
+ 'C:\\Users\\Lenovo\\python312.dll')

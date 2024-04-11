@@ -1,5 +1,5 @@
 Metadata-Version: 2.1
 Name: SudokuSolver
 Version: 1.0
-Requires-Python: >=3.11.3
+Requires-Python: >=3.12.2
 License-File: License.txt

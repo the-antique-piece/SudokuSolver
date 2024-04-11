@@ -1,9 +1,11 @@
 """
 tkinter lib imported for creating gui
 """
+import os
+import sys
 import tkinter as tk
 from tkinter import messagebox
-from src.sudoku_solver import solve_sudoku  # Import the Sudoku solver function
+from src.sudoku_solver import SudokuSolverLogic
 
 
 class SudokuSolverGUI:
@@ -11,27 +13,37 @@ class SudokuSolverGUI:
     This is the class for Sudoku GUI Design
     """
 
+    def resource_path(self, relative_path):
+        """
+        Our pyinstaller doesn't know where is our assets located, it tells the pathe of the assets
+        """
+
+        base_path = sys._MEIPASS  # pylint: disable=no-member disable=protected-access
+        base_path = os.path.abspath(".")
+        return os.path.join(base_path, relative_path)
+
     def __init__(self, master):
         self.master = master
         self.master.title("Sudoku Solver")
+        self.master.geometry("1800x800")
+        self.master.iconbitmap(self.resource_path(r"icons\sudoku-icon.ico"))
+
+        # Create a frame to contain the Sudoku grid with padding
+        self.grid_frame = tk.Frame(self.master, padx=22, pady=10)
+        self.grid_frame.grid(row=0, column=0)
+
+        # Create a frame to contain the Solve and Clear buttons
+        self.button_frame = tk.Frame(self.master, pady=10)
+        self.button_frame.grid(row=2, column=0, pady=(10, 0))
 
         self.puzzle = [[tk.StringVar() for _ in range(9)] for _ in range(9)]
 
         self.create_grid()
-
-        solve_button = tk.Button(
-            self.master, text="Solve", command=self.solve, bg="lightgreen", width=8,
-            font=("Elephant", 30, "bold"))
-        solve_button.grid(row=9, column=1, columnspan=4, pady=20)
-
-        clear_button = tk.Button(
-            self.master, text="Clear", command=self.clear, bg="lightcoral", width=8,
-            font=("Copper Black", 30, "bold"))
-        clear_button.grid(row=9, column=4, columnspan=8, pady=20)
+        self.create_buttons()
 
     def create_grid(self):
         """
-        creates 9x9 grids
+        Creates 9x9 grids with padding from all sides
         """
         color_scheme = {
             (0, 0): "lightblue", (0, 1): "lightblue", (0, 2): "lightblue",
@@ -66,14 +78,32 @@ class SudokuSolverGUI:
         for i in range(9):
             for j in range(9):
                 entry = tk.Entry(
-                    self.master, width=5,
+                    self.grid_frame, width=5,
                     textvariable=self.puzzle[i][j], bg=color_scheme.get((i, j), "white"))
-                entry.grid(row=i, column=j)
-                entry.config(font=('Monoscaped', 44))
+                entry.grid(row=i, column=j, padx=1, pady=1)
+                entry.config(font=('Monoscaped', 43))
                 entry.config(validate="key")
                 entry.config(validatecommand=(
                     entry.register(self.validate_input), "%P"))
                 entry.config(justify="center")
+
+    def create_buttons(self):
+        """
+        Creates Solve and Clear buttons
+        """
+        # Add Solve button
+        self.solve_button = tk.Button(
+            self.button_frame, text="Solve", command=self.solve, bg="lightgreen", width=8,
+            font=("Copper Black", 30, "bold"))
+        # Add right margin of 10 pixels
+        self.solve_button.grid(row=0, column=0, padx=(0, 30))
+
+        # Add Clear button with margin
+        self.clear_button = tk.Button(
+            self.button_frame, text="Clear", command=self.clear, bg="lightcoral", width=8,
+            font=("Copper Black", 30, "bold"))
+        # Add left margin of 10 pixels
+        self.clear_button.grid(row=0, column=1, padx=(30, 0))
 
     def validate_input(self, value):
         """
@@ -127,7 +157,7 @@ class SudokuSolverGUI:
                         for var in row] for row in self.puzzle]
 
         # Solve the Sudoku puzzle
-        solution = solve_sudoku(sudoku_grid)
+        solution = SudokuSolverLogic.solve_sudoku(sudoku_grid)
 
         # Check if a solution is found
         if solution is not None:

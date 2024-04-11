@@ -7,7 +7,7 @@ setup(
     name='SudokuSolver',
     version='1.0',
     packages=find_packages(),
-    python_requires='>=3.11.3',  # Specify the minimum Python version required
+    python_requires='>=3.12.2',  # Specify the minimum Python version required
     install_requires=[
         # List your dependencies here # 'numpy',
         # No external dependencies are needed for tkinter#'matplotlib'
