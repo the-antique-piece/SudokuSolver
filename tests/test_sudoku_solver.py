@@ -7,14 +7,23 @@ from src.sudoku_solver import SudokuSolverLogic
 
 class TestSudokuSolverLogic(unittest.TestCase):
     """
-    Class for encapsulating all of the methods and variables
+    Here's the usual sequence of events in a unit test case:
+
+    1. `setUp()`: This method is called before each test method to set 
+    up any preconditions or initial state needed for the test.
+
+    2. Test method(s): These are the actual test methods that verify the 
+    behavior of the code under test.
+
+    3. `tearDown()`: This method is called after each test method to clean up 
+    any resources or reset any state that was set up in the `setUp()` method. 
+
+    So, the `tearDown()` function comes after the `setUp()` function and 
+    is executed after each individual test method is executed.
     """
 
     def setUp(self):
         self.logic = SudokuSolverLogic()
-
-    def tearDown(self):
-        pass
 
     def test_is_valid_move_true(self):
         """
@@ -130,6 +139,23 @@ class TestSudokuSolverLogic(unittest.TestCase):
         ]
         self.assertRaises(Exception, self.logic.solve_sudoku, grid)
 
+    def test_solve_sudoku_unsolvable(self):
+        """
+        Test solve sudoku with unsolvable puzzle
+        """
+        grid = [
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            [2, 3, 4, 5, 6, 7, 8, 9, 1],
+            [3, 4, 5, 6, 7, 8, 9, 1, 2],
+            [4, 5, 6, 7, 8, 9, 1, 2, 3],
+            [5, 6, 7, 8, 9, 1, 2, 3, 4],
+            [6, 7, 8, 9, 1, 2, 3, 4, 5],
+            [7, 8, 9, 1, 2, 3, 4, 5, 6],
+            [8, 9, 1, 2, 3, 4, 5, 6, 7],
+            [9, 1, 2, 3, 4, 5, 6, 7, 8]
+        ]
+        self.assertIsNone(self.logic.solve_sudoku(grid))
+
     def test_solve_sudoku_empty_puzzle(self):
         """
         test solve sudoku empty puzzle
@@ -137,6 +163,9 @@ class TestSudokuSolverLogic(unittest.TestCase):
         grid = [[0 for _ in range(9)] for _ in range(9)]
         self.logic.solve_sudoku(grid)
         self.assertEqual(grid, [[0 for _ in range(9)] for _ in range(9)])
+
+    def tearDown(self):
+        pass
 
 
 if __name__ == '__main__':

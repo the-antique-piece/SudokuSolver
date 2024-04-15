@@ -1,49 +1,63 @@
 """
-tkinter lib imported for creating gui
+resource_path()
 """
-import os
 import sys
+import os
 import tkinter as tk
-from tkinter import messagebox
 from src.sudoku_solver import SudokuSolverLogic
 
 
 class SudokuSolverGUI:
     """
-    This is the class for Sudoku GUI Design
+    class to encapsulate all the things in a place
     """
 
     def resource_path(self, relative_path):
         """
-        Our pyinstaller doesn't know where is our assets located, it tells the pathe of the assets
+        Get absolute path to resource, works for dev and for PyInstaller.
         """
+        if hasattr(sys, '_MEI259162'):
+            return os.path.join(sys._MEI259162, relative_path)    # pylint: disable=protected-access
 
-        base_path = sys._MEIPASS  # pylint: disable=no-member disable=protected-access
-        base_path = os.path.abspath(".")
-        return os.path.join(base_path, relative_path)
+        return os.path.abspath(relative_path)
+
+
+# Use resource_path to get the correct icon path
+
 
     def __init__(self, master):
+        """
+        initialize the views
+        """
         self.master = master
         self.master.title("Sudoku Solver")
-        self.master.geometry("1800x800")
-        self.master.iconbitmap(self.resource_path(r"icons\sudoku-icon.ico"))
+        self.master.geometry("1200x600")
+        icon_path = self.resource_path(
+            r"icons\sudoku-icon.ico")
+        # Use the icon path in the GUI initialization
+        self.master.iconbitmap(icon_path)
+        greeting_label = tk.Label(self.master, text="Hey Buddy! Welcome to Sudoku World.", font=(
+            "Copper Black", 20, "bold"), fg="purple")
+        greeting_label.grid(row=0, column=0, pady=(20, 10), sticky="ew")
 
-        # Create a frame to contain the Sudoku grid with padding
-        self.grid_frame = tk.Frame(self.master, padx=22, pady=10)
-        self.grid_frame.grid(row=0, column=0)
+        self.grid_frame = tk.Frame(self.master)
+        self.grid_frame.grid(row=1, column=0, pady=(
+            0, 10), padx=(20, 20), sticky="nsew")
 
-        # Create a frame to contain the Solve and Clear buttons
-        self.button_frame = tk.Frame(self.master, pady=10)
-        self.button_frame.grid(row=2, column=0, pady=(10, 0))
+        self.button_frame = tk.Frame(self.master)
+        self.button_frame.grid(row=2, column=0, pady=(0, 20), sticky="ew")
 
         self.puzzle = [[tk.StringVar() for _ in range(9)] for _ in range(9)]
 
         self.create_grid()
         self.create_buttons()
 
+        self.master.grid_rowconfigure(1, weight=1)
+        self.master.grid_columnconfigure(0, weight=1)
+
     def create_grid(self):
         """
-        Creates 9x9 grids with padding from all sides
+        create the grid
         """
         color_scheme = {
             (0, 0): "lightblue", (0, 1): "lightblue", (0, 2): "lightblue",
@@ -78,32 +92,31 @@ class SudokuSolverGUI:
         for i in range(9):
             for j in range(9):
                 entry = tk.Entry(
-                    self.grid_frame, width=5,
-                    textvariable=self.puzzle[i][j], bg=color_scheme.get((i, j), "white"))
-                entry.grid(row=i, column=j, padx=1, pady=1)
-                entry.config(font=('Monoscaped', 43))
-                entry.config(validate="key")
-                entry.config(validatecommand=(
+                    self.grid_frame, textvariable=self.puzzle[i][j],
+                    bg=color_scheme.get((i, j), "white"))
+                entry.grid(row=i, column=j, padx=1, pady=1, sticky="nsew")
+                entry.config(font=('Monoscaped', 30))
+                entry.config(validate="key", validatecommand=(
                     entry.register(self.validate_input), "%P"))
                 entry.config(justify="center")
 
+                self.grid_frame.grid_columnconfigure(j, weight=1)
+                self.grid_frame.grid_rowconfigure(i, weight=1)
+
     def create_buttons(self):
         """
-        Creates Solve and Clear buttons
+        creates  buttons
         """
-        # Add Solve button
-        self.solve_button = tk.Button(
-            self.button_frame, text="Solve", command=self.solve, bg="lightgreen", width=8,
-            font=("Copper Black", 30, "bold"))
-        # Add right margin of 10 pixels
-        self.solve_button.grid(row=0, column=0, padx=(0, 30))
+        self.solve_button = tk.Button(self.button_frame, text="Solve", command=self.solve,
+                                      bg="lightgreen", width=6, font=("Copper Black", 26, "bold"))
+        self.solve_button.grid(row=0, column=0, padx=(160, 0))
 
-        # Add Clear button with margin
-        self.clear_button = tk.Button(
-            self.button_frame, text="Clear", command=self.clear, bg="lightcoral", width=8,
-            font=("Copper Black", 30, "bold"))
-        # Add left margin of 10 pixels
-        self.clear_button.grid(row=0, column=1, padx=(30, 0))
+        self.clear_button = tk.Button(self.button_frame, text="Clear", command=self.clear,
+                                      bg="lightcoral", width=6, font=("Copper Black", 26, "bold"))
+        self.clear_button.grid(row=0, column=0, padx=(630, 0))
+
+        self.button_frame.grid_columnconfigure(0, weight=1)
+        self.button_frame.grid_columnconfigure(1, weight=1)
 
     def validate_input(self, value):
         """
@@ -146,10 +159,13 @@ class SudokuSolverGUI:
         """
         Solve the Sudoku puzzle
         """
+
         # Check for duplicate values before solving the puzzle
         if not self.check_duplicates():
-            messagebox.showinfo(
-                "No Solution! No Solution exists for the provided puzzle.")
+            message = """No solution exists for the provided puzzle.
+            \n\nReason: The puzzle contains duplicate values in either rows,columns, or 3x3 subgrids.
+            \nPlease correct the duplicates and try again."""
+            self.show_detailed_message(message)
             return
 
         # Convert the puzzle grid to a 2D list
@@ -165,13 +181,33 @@ class SudokuSolverGUI:
             for i in range(9):
                 for j in range(9):
                     self.puzzle[i][j].set(solution[i][j])
-        else:
-            # Display a message indicating that no solution exists
-            message = """No Solution", "No solution exists for the provided puzzle.
-            Reason: The Puzzle contains duplicate values in either rows, 
-            columns, or 3x3 subgrids."""
-            messagebox.showinfo("No Solution", message,
-                                icon='warning', width=600, height=200)
+
+    def show_detailed_message(self, message):
+        """
+        Display a detailed message using a custom dialog with resizable text.
+        """
+        dialog = tk.Toplevel()
+        dialog.title("No Solution!")
+        dialog.geometry("400x200")  # Set initial size of the dialog
+        icon_path = self.resource_path(
+            r"icons\sudoku-icon.ico")
+        dialog.iconbitmap(icon_path)
+        text = tk.Text(dialog, wrap="word", height=10, width=40)
+        text.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Configure a tag for left alignment
+        text.tag_configure("left", justify="left")
+        # Apply the "left" tag to the inserted text
+        text.insert("1.0", message, "left")
+        text.config(state="disabled")
+
+        # Allow the user to resize the dialog
+        dialog.resizable(True, True)
+
+        dialog.transient()  # Set dialog as transient to the main window
+        dialog.grab_set()   # Grab focus to the dialog
+        dialog.focus_set()  # Set focus to the dialog
+        dialog.wait_window()  # Wait for the dialog to be closed
 
     def clear(self):
         """

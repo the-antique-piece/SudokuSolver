@@ -18,9 +18,6 @@ class TestSudokuSolverGUI(unittest.TestCase):
         self.root = Tk()
         self.gui = SudokuSolverGUI(self.root)
 
-    def tearDown(self):
-        self.root.destroy()
-
     def test_create_grid(self):
         """
         test create grid method
@@ -116,6 +113,9 @@ class TestSudokuSolverGUI(unittest.TestCase):
         for i in range(9):
             for j in range(9):
                 self.assertEqual(self.gui.puzzle[i][j].get(), "")
+
+    def tearDown(self):
+        self.root.destroy()
 
 
 if __name__ == "__main__":
