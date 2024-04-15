@@ -1,0 +1,1 @@
+I have observed that when you switch master to any other branch without commiting or comminting the changes , the changes made to master are reflected to checkedout branch
