@@ -96,12 +96,30 @@ class SudokuSolverGUI:
                     bg=color_scheme.get((i, j), "white"))
                 entry.grid(row=i, column=j, padx=1, pady=1, sticky="nsew")
                 entry.config(font=('Monoscaped', 30))
-                entry.config(validate="key", validatecommand=(
-                    entry.register(self.validate_input), "%P"))
                 entry.config(justify="center")
+
+                # Bind events to the entry field
+                entry.bind("<Button-1>", lambda event,
+                           entry=entry: self.clear_cell(entry))
+                entry.bind("<Key>", lambda event,
+                           entry=entry: self.handle_key(event, entry))
 
                 self.grid_frame.grid_columnconfigure(j, weight=1)
                 self.grid_frame.grid_rowconfigure(i, weight=1)
+
+    def clear_cell(self, entry):
+        """Clear the value of the clicked entry field"""
+        entry.delete(0, "end")
+
+    def handle_key(self, event, entry):
+        """Handle key presses in entry fields"""
+        # Get the pressed key
+        pressed_key = event.char
+        # If the pressed key is a digit from 1 to 9
+        if pressed_key.isdigit() and 1 <= int(pressed_key) <= 9:
+            # Set the value of the entry field to the pressed key
+            entry.delete(0, "end")
+            entry.insert(0, pressed_key)
 
     def create_buttons(self):
         """
