@@ -24,7 +24,6 @@ class SudokuSolverGUI:
 
 # Use resource_path to get the correct icon path
 
-
     def __init__(self, master):
         """
         initialize the views
@@ -171,8 +170,10 @@ class SudokuSolverGUI:
         """
         Validate user input to ensure only numbers from 1 to 9 are allowed
         """
-        if value.isdigit() and 1 <= int(value) <= 9:
-            return True
+        if value == "":
+            return True  # Allow empty cells to be edited
+        elif value.isdigit() and 1 <= int(value) <= 9:
+            return True  # Validate input for non-empty cells
         else:
             return False
 
