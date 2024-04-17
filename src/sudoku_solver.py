@@ -9,6 +9,17 @@ class SudokuSolverLogic:
     """
 
     @staticmethod
+    def find_empty_cell(grid):
+        """
+        it searches for empty location
+        """
+        for i in range(9):
+            for j in range(9):
+                if grid[i][j] == 0:
+                    return i, j
+        return None
+
+    @staticmethod
     def is_valid_move(grid, row, col, num):
         """
         Checks for valid move
@@ -53,14 +64,3 @@ class SudokuSolverLogic:
                 grid[row][col] = 0
 
         return None  # No solution found
-
-    @staticmethod
-    def find_empty_cell(grid):
-        """
-        it searches for empty location
-        """
-        for i in range(9):
-            for j in range(9):
-                if grid[i][j] == 0:
-                    return i, j
-        return None

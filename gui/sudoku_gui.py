@@ -24,7 +24,6 @@ class SudokuSolverGUI:
 
 # Use resource_path to get the correct icon path
 
-
     def __init__(self, master):
         """
         initialize the views
@@ -189,8 +188,7 @@ class SudokuSolverGUI:
         dialog = tk.Toplevel()
         dialog.title("No Solution!")
         dialog.geometry("400x200")  # Set initial size of the dialog
-        icon_path = self.resource_path(
-            r"icons\sudoku-icon.ico")
+        icon_path = self.resource_path(r"icons\sudoku-icon.ico")
         dialog.iconbitmap(icon_path)
         text = tk.Text(dialog, wrap="word", height=10, width=40)
         text.pack(fill="both", expand=True, padx=10, pady=10)
@@ -216,3 +214,7 @@ class SudokuSolverGUI:
         for i in range(9):
             for j in range(9):
                 self.puzzle[i][j].set("")
+                # Ensure that the cleared entries are validated
+                entry = self.grid_frame.grid_slaves(row=i, column=j)[0]
+                entry.config(validate="key", validatecommand=(
+                    entry.register(self.validate_input), "%P"))
