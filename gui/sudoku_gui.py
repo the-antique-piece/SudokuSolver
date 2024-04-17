@@ -99,8 +99,32 @@ class SudokuSolverGUI:
                     entry.register(self.validate_input), "%P"))
                 entry.config(justify="center")
 
+                # Bind the KeyRelease event to each entry
+                entry.bind("<KeyRelease>", lambda event, row=i,
+                           col=j: self.move_to_next_cell(row, col))
+
                 self.grid_frame.grid_columnconfigure(j, weight=1)
                 self.grid_frame.grid_rowconfigure(i, weight=1)
+
+    def move_to_next_cell(self, row, col):
+        """
+        Move the cursor to the next cell when a key is released
+        """
+        # Get the input value
+        value = self.puzzle[row][col].get()
+
+        # Check if the input is valid (a single digit)
+        if value.isdigit() and 1 <= int(value) <= 9:
+            # Move the cursor to the next cell if it's not in the last column
+            if col < 8:
+                next_entry = self.grid_frame.grid_slaves(
+                    row=row, column=col + 1)[0]
+                next_entry.focus_set()  # Move the focus to the next entry
+            # Move the cursor to the first cell of the next row if it's in the last column
+            elif row < 8:
+                next_entry = self.grid_frame.grid_slaves(
+                    row=row + 1, column=0)[0]
+                next_entry.focus_set()  # Move the focus to the next entry
 
     def create_buttons(self):
         """
