@@ -24,6 +24,7 @@ class SudokuSolverGUI:
 
 # Use resource_path to get the correct icon path
 
+
     def __init__(self, master):
         """
         initialize the views
@@ -102,9 +103,31 @@ class SudokuSolverGUI:
                 # Bind the KeyRelease event to each entry
                 entry.bind("<KeyRelease>", lambda event, row=i,
                            col=j: self.move_to_next_cell(row, col))
-
+                # Bind the arrow keys to move the focus
+                # Bind the arrow keys to move the focus
+                entry.bind("<Left>", lambda event, row=i,
+                           col=j: self.move_focus(row, col, 0, -1))
+                entry.bind("<Right>", lambda row=i,
+                           col=j: self.move_focus(row, col, 0, 1))
+                entry.bind("<Up>", lambda row=i,
+                           col=j: self.move_focus(row, col, -1, 0))
+                entry.bind("<Down>", lambda row=i,
+                           col=j: self.move_focus(row, col, 1, 0))
                 self.grid_frame.grid_columnconfigure(j, weight=1)
                 self.grid_frame.grid_rowconfigure(i, weight=1)
+
+    def move_focus(self, row, col, row_offset, col_offset):
+        """
+        Move the focus to the adjacent cell based on the arrow key pressed
+        """
+        next_row = row + row_offset
+        next_col = col + col_offset
+
+        # Check if the next cell is within the grid boundaries
+        if 0 <= next_row < 9 and 0 <= next_col < 9:
+            next_entry = self.grid_frame.grid_slaves(
+                row=next_row, column=next_col)[0]
+            next_entry.focus_set()  # Move the focus to the next entry
 
     def move_to_next_cell(self, row, col):
         """
@@ -115,6 +138,9 @@ class SudokuSolverGUI:
 
         # Check if the input is valid (a single digit)
         if value.isdigit() and 1 <= int(value) <= 9:
+            # Replace the previous value with the new one
+            self.puzzle[row][col].set(value)
+
             # Move the cursor to the next cell if it's not in the last column
             if col < 8:
                 next_entry = self.grid_frame.grid_slaves(
