@@ -24,7 +24,6 @@ class SudokuSolverGUI:
 
 # Use resource_path to get the correct icon path
 
-
     def __init__(self, master):
         """
         initialize the views
@@ -106,20 +105,23 @@ class SudokuSolverGUI:
                 # Bind the arrow keys to move the focus
                 # Bind the arrow keys to move the focus
                 entry.bind("<Left>", lambda event, row=i,
-                           col=j: self.move_focus(row, col, 0, -1))
-                entry.bind("<Right>", lambda row=i,
-                           col=j: self.move_focus(row, col, 0, 1))
-                entry.bind("<Up>", lambda row=i,
-                           col=j: self.move_focus(row, col, -1, 0))
-                entry.bind("<Down>", lambda row=i,
-                           col=j: self.move_focus(row, col, 1, 0))
+                           col=j: self.move_focus(event, row, col, 0, -1))
+                entry.bind("<Right>", lambda event, row=i,
+                           col=j: self.move_focus(event, row, col, 0, 1))
+                entry.bind("<Up>", lambda event, row=i,
+                           col=j: self.move_focus(event, row, col, -1, 0))
+                entry.bind("<Down>", lambda event, row=i,
+                           col=j: self.move_focus(event, row, col, 1, 0))
+
                 self.grid_frame.grid_columnconfigure(j, weight=1)
                 self.grid_frame.grid_rowconfigure(i, weight=1)
 
-    def move_focus(self, row, col, row_offset, col_offset):
+    def move_focus(self, event, row, col, row_offset, col_offset):
+        # pylint: disable=unused-argument
         """
         Move the focus to the adjacent cell based on the arrow key pressed
         """
+        # The 'event' parameter is not used in this method, so we can remove it
         next_row = row + row_offset
         next_col = col + col_offset
 
@@ -171,8 +173,10 @@ class SudokuSolverGUI:
         """
         Validate user input to ensure only numbers from 1 to 9 are allowed
         """
-        if value.isdigit() and 1 <= int(value) <= 9:
-            return True
+        if value == "":
+            return True  # Allow empty cells to be edited
+        elif value.isdigit() and 1 <= int(value) <= 9:
+            return True  # Validate input for non-empty cells
         else:
             return False
 
