@@ -4,6 +4,7 @@ resource_path()
 import sys
 import os
 import tkinter as tk
+from tkinter import Tk
 from src.sudoku_solver import SudokuSolverLogic
 
 
@@ -24,7 +25,7 @@ class SudokuSolverGUI:
 
 # Use resource_path to get the correct icon path
 
-    def __init__(self, master):
+    def __init__(self, master: Tk):
         """
         initialize the views
         """
@@ -180,46 +181,10 @@ class SudokuSolverGUI:
         else:
             return False
 
-    def check_duplicates(self):
-        """
-        Check for duplicate values in rows, columns, and 3x3 grids
-        """
-        for i in range(9):
-            row_values = set()
-            col_values = set()
-            grid_values = set()
-            for j in range(9):
-                row_value = self.puzzle[i][j].get()
-                col_value = self.puzzle[j][i].get()
-                grid_row = 3 * (i // 3) + j // 3
-                grid_col = 3 * (i % 3) + j % 3
-                grid_value = self.puzzle[grid_row][grid_col].get()
-
-                if row_value != "" and row_value in row_values:
-                    return False
-                if col_value != "" and col_value in col_values:
-                    return False
-                if grid_value != "" and grid_value in grid_values:
-                    return False
-
-                row_values.add(row_value)
-                col_values.add(col_value)
-                grid_values.add(grid_value)
-
-        return True
-
     def solve(self):
         """
         Solve the Sudoku puzzle
         """
-
-        # Check for duplicate values before solving the puzzle
-        if not self.check_duplicates():
-            message = """No solution exists for the provided puzzle.
-            \n\nReason: The puzzle contains duplicate values in either rows,columns, or 3x3 subgrids.
-            \nPlease correct the duplicates and try again."""
-            self.show_detailed_message(message)
-            return
 
         # Convert the puzzle grid to a 2D list
         sudoku_grid = [[0 if var.get() == "" else int(var.get())
@@ -229,7 +194,13 @@ class SudokuSolverGUI:
         solution = SudokuSolverLogic.solve_sudoku(sudoku_grid)
 
         # Check if a solution is found
-        if solution is not None:
+        if solution is None:
+            message = """No solution exists for the provided puzzle.
+            \n\nReason: The puzzle contains duplicate values in either rows,columns, or 3x3 subgrids.
+            \nPlease correct the duplicates and try again."""
+            self.show_detailed_message(message)
+            return
+        else:
             # Update the puzzle grid with the solution
             for i in range(9):
                 for j in range(9):
