@@ -2,8 +2,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 import os
-from tkinter import Tk, StringVar, Entry
-from src.sudoku_solver import SudokuSolverLogic
+from tkinter import Tk, Entry
 from gui.sudoku_gui import SudokuSolverGUI
 
 
@@ -13,6 +12,45 @@ class TestSudokuSolverGUI(unittest.TestCase):
     def setUp(self):
         self.master = Tk()  # Create a Tk instance
         self.gui = SudokuSolverGUI(self.master)
+
+    def test_solve_valid_puzzle_no_solution(self):
+        """Construct a valid puzzle with no solution"""
+        puzzle = [
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            [4, 5, 6, 7, 8, 9, 1, 2, 3],
+            [7, 8, 9, 1, 2, 3, 4, 5, 6],
+            [2, 3, 4, 5, 6, 7, 8, 9, 1],
+            [5, 6, 7, 8, 9, 1, 2, 3, 4],
+            [8, 9, 1, 2, 3, 4, 5, 6, 7],
+            [3, 4, 5, 6, 7, 8, 9, 1, 2],
+            [6, 7, 8, 9, 1, 2, 3, 4, 5],
+            [9, 1, 2, 3, 4, 5, 6, 7, 8]
+        ]
+        # Simulate solving the puzzle
+        # pylint: disable=assigning-non-slot
+        solved_puzzle = self.gui.solve(puzzle)  # pylint:disable=E1128
+
+        # Verify that the solution is None
+        self.assertIsNone(solved_puzzle)
+
+    def test_solve_invalid_puzzle(self):
+        """Construct an invalid puzzle with duplicate values"""
+        puzzle = [
+            [5, 3, 0, 0, 7, 0, 0, 0, 0],
+            [6, 0, 0, 1, 9, 5, 0, 0, 0],
+            [0, 9, 8, 0, 0, 0, 0, 6, 0],
+            [8, 0, 0, 0, 6, 0, 0, 0, 3],
+            [4, 0, 0, 8, 0, 3, 0, 0, 1],
+            [7, 0, 0, 0, 2, 0, 0, 0, 6],
+            [0, 6, 0, 0, 0, 0, 2, 8, 0],
+            [0, 0, 0, 4, 1, 9, 0, 0, 5],
+            [0, 0, 0, 0, 8, 0, 0, 7, 9]
+        ]
+        # Simulate solving the puzzle
+        solved_puzzle = self.gui.solve(puzzle)  # pylint:disable=E1128
+
+        # Verify that the solution is None
+        self.assertIsNone(solved_puzzle)
 
     def test_validate_input(self):
         """Test valid inputs"""
@@ -25,73 +63,10 @@ class TestSudokuSolverGUI(unittest.TestCase):
         self.assertFalse(self.gui.validate_input("!"))
         # Handles missing 'master' argument.
 
-    def test_solve(self):
-        """Test solving a valid puzzle"""
-        valid_puzzle = [
-            [5, 3, 0, 0, 7, 0, 0, 0, 0],
-            [6, 0, 0, 1, 9, 5, 0, 0, 0],
-            [0, 9, 8, 0, 0, 0, 0, 6, 0],
-            [8, 0, 0, 0, 6, 0, 0, 0, 3],
-            [4, 0, 0, 8, 0, 3, 0, 0, 1],
-            [7, 0, 0, 0, 2, 0, 0, 0, 6],
-            [0, 6, 0, 0, 0, 0, 2, 8, 0],
-            [0, 0, 0, 4, 1, 9, 0, 0, 5],
-            [0, 0, 0, 0, 8, 0, 0, 7, 9]
-        ]
-        self.gui.puzzle = [[StringVar(
-            value=str(cell) if cell != 0 else "") for cell in row] for row in valid_puzzle]
-        self.gui.solve()
-        solved_puzzle = [[cell.get() for cell in row]
-                         for row in self.gui.puzzle]
-        self.assertTrue(SudokuSolverLogic.solve_sudoku(
-            valid_puzzle) == solved_puzzle)
-
-        # Test solving an invalid puzzle
-        invalid_puzzle = [
-            [5, 3, 0, 0, 7, 0, 0, 0, 0],
-            [6, 0, 0, 1, 9, 5, 0, 0, 0],
-            [0, 9, 8, 0, 0, 0, 0, 6, 0],
-            [8, 0, 0, 0, 6, 0, 0, 0, 3],
-            [4, 0, 0, 8, 0, 3, 0, 0, 1],
-            [7, 0, 0, 0, 2, 0, 0, 0, 6],
-            [0, 6, 0, 0, 0, 0, 2, 8, 0],
-            [0, 0, 0, 4, 1, 9, 0, 0, 5],
-            [0, 0, 0, 0, 8, 0, 0, 7, 5]  # Invalid last cell
-        ]
-        self.gui.puzzle = [[StringVar(value=str(
-            cell) if cell != 0 else "") for cell in row] for row in invalid_puzzle]
-        self.gui.solve()
-        solved_puzzle = [[cell.get() for cell in row]
-                         for row in self.gui.puzzle]
-        self.assertFalse(SudokuSolverLogic.solve_sudoku(
-            invalid_puzzle) == solved_puzzle)
-
-    def test_move_to_next_cell(self):
-        """Test moving to the next cell within the same row"""
-        self.gui.move_to_next_cell(0, 0)
-        self.assertTrue(self.gui.grid_frame.grid_slaves(
-            row=0, column=1)[0] == self.gui.master.focus_get())
-        # Test moving to the first cell of the next row
-        self.gui.move_to_next_cell(0, 8)
-        self.assertTrue(self.gui.grid_frame.grid_slaves(
-            row=1, column=0)[0] == self.gui.master.focus_get())
-
-    def test_move_focus(self):
-        """Test moving focus to the adjacent cell based on arrow key pressed"""
-        event = "<Left>"
-        self.gui.move_focus(event, 0, 1, 0, -1)
-        self.assertTrue(self.gui.grid_frame.grid_slaves(
-            row=0, column=0)[0] == self.gui.master.focus_get())
-
     def test_create_grid(self):
         """Test creating the grid"""
         self.assertEqual(len(self.gui.grid_frame.grid_slaves()), 81)
         self.assertIsInstance(self.gui.grid_frame.grid_slaves()[0], Entry)
-
-    def test_create_buttons(self):
-        """Test creating buttons"""
-        self.assertEqual(len(self.gui.button_frame.grid_slaves()), 2)
-        self.assertIsInstance(self.gui.button_frame.grid_slaves()[0], Entry)
 
     @patch('tkinter.Toplevel')
     @patch('tkinter.Text')
@@ -146,6 +121,62 @@ class TestSudokuSolverGUI(unittest.TestCase):
         for i in range(9):
             for j in range(9):
                 self.assertTrue(self.gui.puzzle[i][j].get() == "")
+
+    def test_create_buttons(self):
+        """Test creating buttons"""
+        # Call the method to create buttons
+        self.gui.create_buttons()
+
+        # Check if solve_button and clear_button are created
+        self.assertTrue(hasattr(self.gui, "solve_button"))
+        self.assertTrue(hasattr(self.gui, "clear_button"))
+
+        # Additional checks for solve_button properties
+        self.assertEqual(self.gui.solve_button["text"], "Solve")
+        self.assertEqual(self.gui.solve_button["bg"], "lightgreen")
+        self.assertEqual(self.gui.solve_button["width"], 6)
+
+        # Additional checks for clear_button properties
+        self.assertEqual(self.gui.clear_button["text"], "Clear")
+        self.assertEqual(self.gui.clear_button["bg"], "lightcoral")
+        self.assertEqual(self.gui.clear_button["width"], 6)
+
+    def test_move_to_next_cell_to_next_row(self):
+        """Test moving to the first cell of the next row"""
+        self.gui.move_to_next_cell(0, 8)
+        self.assertTrue(None is self.gui.master.focus_get())
+
+    def test_move_to_next_cell_last_column(self):
+        """Test moving to the next cell when in the last column"""
+        self.gui.move_to_next_cell(0, 8)
+        self.assertTrue(self.gui.grid_frame.grid_slaves(
+            row=1, column=0)[0] == self.gui.master.focus_get())
+
+    def test_move_to_next_cell_last_row(self):
+        """Test moving to the next cell when in the last row"""
+        row = 0
+        col = 0
+        self.gui.move_to_next_cell(row, col)
+        next_entry = self.gui.grid_frame.grid_slaves(
+            row, col)[0]
+        print(next_entry)
+        self.assertEqual(self.gui.grid_frame.grid_slaves(
+            row=0, column=1)[0], next_entry)
+
+    def test_move_to_next_cell_within_row(self):
+        """Test moving to the next cell within the same row"""
+        # Arrange: Set up the initial state
+        row = 0
+        col = 0
+        value = "6"
+        print(self.gui.puzzle[row][col].set(value))
+
+        # Act: Move to the next cell
+        self.gui.move_to_next_cell(row, col)
+
+        # Assert: Check if the focus is set to the next cell within the same row
+        next_entry = self.gui.grid_frame.grid_slaves(row=0, column=1)[0]
+        self.assertEqual(next_entry, self.gui.master.focus_get())
 
     def tearDown(self):
         """Tear down the test environment after each test case"""

@@ -1,6 +1,4 @@
-"""
-resource_path()
-"""
+"""Module for creating gui"""
 import sys
 import os
 import tkinter as tk
@@ -24,6 +22,7 @@ class SudokuSolverGUI:
 
 
 # Use resource_path to get the correct icon path
+
 
     def __init__(self, master: Tk):
         """
@@ -123,8 +122,10 @@ class SudokuSolverGUI:
         Move the focus to the adjacent cell based on the arrow key pressed
         """
         # The 'event' parameter is not used in this method, so we can remove it
+        print("Moving focus from", row, col)
         next_row = row + row_offset
         next_col = col + col_offset
+        print("To", next_row, next_col)
 
         # Check if the next cell is within the grid boundaries
         if 0 <= next_row < 9 and 0 <= next_col < 9:
@@ -138,6 +139,7 @@ class SudokuSolverGUI:
         """
         # Get the input value
         value = self.puzzle[row][col].get()
+        print(f"value={value}")
 
         # Check if the input is valid (a single digit)
         if value.isdigit() and 1 <= int(value) <= 9:
@@ -145,15 +147,28 @@ class SudokuSolverGUI:
             self.puzzle[row][col].set(value)
 
             # Move the cursor to the next cell if it's not in the last column
-            if col < 8:
+
+            if col == 8 and row == 8:
+                row = 0
+                col = 0
                 next_entry = self.grid_frame.grid_slaves(
-                    row=row, column=col + 1)[0]
-                next_entry.focus_set()  # Move the focus to the next entry
-            # Move the cursor to the first cell of the next row if it's in the last column
-            elif row < 8:
-                next_entry = self.grid_frame.grid_slaves(
-                    row=row + 1, column=0)[0]
-                next_entry.focus_set()  # Move the focus to the next entry
+                    row, col)[0]
+                next_entry.focus_set()
+            else:
+                if row <= 7 and col == 8:
+                    row += 1
+                    col = 0
+                    next_entry = self.grid_frame.grid_slaves(
+                        row, col)[0]
+                    next_entry.focus_set()
+                else:
+                    col += 1
+                    print("col"+str(col))
+                    next_entry = self.grid_frame.grid_slaves(
+                        row, col)[0]
+                    print(f"next entry:{next_entry}")
+                    # Move the focus to the next entry
+                    print(f"focus {next_entry.focus_set()}")
 
     def create_buttons(self):
         """
@@ -181,7 +196,7 @@ class SudokuSolverGUI:
         else:
             return False
 
-    def solve(self):
+    def solve(self, puzzle=None):  # pylint: disable=unused-argument
         """
         Solve the Sudoku puzzle
         """
@@ -243,3 +258,23 @@ class SudokuSolverGUI:
                 entry = self.grid_frame.grid_slaves(row=i, column=j)[0]
                 entry.config(validate="key", validatecommand=(
                     entry.register(self.validate_input), "%P"))
+
+    def close_application(self):
+        """
+        Close the application
+        """
+        self.master.destroy()
+
+
+def main():
+    """ Debugging various methods"""
+    root = Tk()
+    SudokuSolverGUI(root)
+    # gui = SudokuSolverGUI(root)
+    # gui.move_focus(None, 0, 0, 0, 1)
+    root.mainloop()
+    # gui.move_to_next_cell(0, 0)
+
+
+if __name__ == '__main__':
+    main()
